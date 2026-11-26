@@ -81,7 +81,7 @@ class MiniErpApiTest {
         .perform(
             post("/api/orders")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(orderJson(productId, 2)))
+                .content(orderJsonRepeatedLine(productId)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.total").value(159.8))
         .andExpect(jsonPath("$.items[0].subtotal").value(159.8));
@@ -110,12 +110,13 @@ class MiniErpApiTest {
   @Test
   void insufficientStockIsRejectedWithoutChangingTheOrderOrBalance() throws Exception {
     long productId = createProduct("MOUSE-002", 3);
+    long secondProductId = createProduct("MOUSE-004", 1);
 
     mockMvc
         .perform(
             post("/api/orders")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(orderJson(productId, 4)))
+                .content(orderJson(productId, 2, secondProductId, 2)))
         .andExpect(status().isConflict());
     mockMvc
         .perform(
@@ -128,6 +129,10 @@ class MiniErpApiTest {
         .perform(get("/api/products/{id}", productId))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.stockQuantity").value(3));
+    mockMvc
+        .perform(get("/api/products/{id}", secondProductId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.stockQuantity").value(1));
     mockMvc
         .perform(get("/api/orders"))
         .andExpect(status().isOk())
@@ -192,5 +197,20 @@ class MiniErpApiTest {
                 {"items":[{"productId":%d,"quantity":%d}]}
                 """
         .formatted(productId, quantity);
+  }
+
+  private String orderJson(
+      long firstProductId, int firstQuantity, long secondProductId, int secondQuantity) {
+    return """
+                {"items":[{"productId":%d,"quantity":%d},{"productId":%d,"quantity":%d}]}
+                """
+        .formatted(firstProductId, firstQuantity, secondProductId, secondQuantity);
+  }
+
+  private String orderJsonRepeatedLine(long productId) {
+    return """
+                {"items":[{"productId":%d,"quantity":1},{"productId":%d,"quantity":1}]}
+                """
+        .formatted(productId, productId);
   }
 }
