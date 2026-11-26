@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: mini-erp-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/minierp}
+    username: ${DB_USERNAME:minierp}
+    password: ${DB_PASSWORD:minierp}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+server:
+  port: ${SERVER_PORT:8081}
