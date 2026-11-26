@@ -21,6 +21,16 @@ mvn spring-boot:run
 
 A API fica em http://localhost:8081. O banco usa a porta 5433. Para parar o banco, execute docker compose down.
 
+## Testes
+
+Execute a suíte automatizada com:
+
+~~~bash
+mvn test
+~~~
+
+Os testes usam um banco H2 temporário e verificam operações de produtos, entradas e saídas, histórico de movimentações, criação e consulta de pedidos, cálculo de subtotal/total, validações e bloqueio de venda ou saída quando o estoque não é suficiente. Produtos com movimentações ou pedidos associados não podem ser removidos, preservando o histórico.
+
 ## Exemplo
 
 Cadastre um produto:
